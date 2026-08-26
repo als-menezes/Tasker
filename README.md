@@ -1,6 +1,6 @@
-# TaskFlow
+# Tasker
 
-TaskFlow é uma aplicação full-stack de gerenciamento de tarefas.
+Tasker é uma aplicação full-stack de gerenciamento de tarefas.
 
 O projeto está sendo desenvolvido com React no frontend e Node.js/Express no backend.
 
