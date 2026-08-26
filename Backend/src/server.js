@@ -9,11 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.json({
-        message: 'TaskFlow API',
-    });
+  res.json({
+    message: 'Tasker API',
+  });
 });
 
 app.listen(PORT, () => {
-    console.log(`TaskFlow API running on port ${PORT}`);
+  console.log(`Tasker API running on port ${PORT}`);
 });
