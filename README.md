@@ -22,11 +22,21 @@ O projeto está sendo desenvolvido com React no frontend e Node.js/Express no ba
 
 ## Funcionalidades
 
-Atualmente o projeto possui:
-
-- Estrutura frontend/backend
-- API REST inicial
-- Comunicação entre React e Express
+- [x] Estrutura frontend/backend
+- [x] API REST inicial
+- [x] Comunicação entre React e Express
+- [x] PostgreSQL
+- [x] Cadastro de usuários
+- [x] Hash de senhas com bcrypt
+- [ ] Login
+- [ ] Autenticação JWT
+- [ ] CRUD de tarefas
+- [ ] Dashboard
+- [ ] Filtros
+- [ ] Responsividade
+- [ ] Testes
+- [ ] Docker
+- [ ] Deploy
 
 ## Como executar
 
