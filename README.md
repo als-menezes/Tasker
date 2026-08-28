@@ -32,9 +32,16 @@ O projeto está sendo desenvolvido com React no frontend e Node.js/Express no ba
 - [x] Autenticação JWT
 - [x] Rotas protegidas
 - [x] CRUD de tarefas
-- [ ] Dashboard
+- [x] Interface React
+- [x] Cadastro pelo frontend
+- [x] Login pelo frontend
+- [x] Dashboard
+- [x] Criação de tarefas pelo frontend
+- [x] Conclusão de tarefas
+- [x] Exclusão de tarefas
+- [ ] Edição de tarefas
 - [ ] Filtros
-- [ ] Responsividade
+- [ ] Responsividade avançada
 - [ ] Testes
 - [ ] Docker
 - [ ] Deploy

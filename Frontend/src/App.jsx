@@ -1,46 +1,23 @@
-import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 function App() {
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchApi() {
-      try {
-        const response = await fetch('http://localhost:3001');
-
-        if (!response.ok) {
-          throw new Error('Erro ao conectar com a API');
-        }
-
-        const data = await response.json();
-
-        setMessage(data.message);
-      } catch (error) {
-        setMessage('Não foi possível conectar com a API.');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchApi();
-  }, []);
-
   return (
-    <main>
-      <h1>TaskFlow</h1>
-      <p>Gerenciador de tarefas</p>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
-      <section>
-        <h2>Status da API</h2>
-
-        {loading ? (
-          <p>Conectando...</p>
-        ) : (
-          <p>{message}</p>
-        )}
-      </section>
-    </main>
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
