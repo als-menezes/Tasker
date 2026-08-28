@@ -28,8 +28,9 @@ O projeto está sendo desenvolvido com React no frontend e Node.js/Express no ba
 - [x] PostgreSQL
 - [x] Cadastro de usuários
 - [x] Hash de senhas com bcrypt
-- [ ] Login
-- [ ] Autenticação JWT
+- [x] Login
+- [x] Autenticação JWT
+- [x] Rotas protegidas
 - [ ] CRUD de tarefas
 - [ ] Dashboard
 - [ ] Filtros
