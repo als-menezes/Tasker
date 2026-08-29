@@ -181,3 +181,34 @@ button {
     flex: 1;
   }
 }
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.filters input,
+.filters select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.filters input {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+  }
+}
+
+.task-form h2 {
+  margin-bottom: 16px;
+}
+
+.task-form .task-actions {
+  margin-top: 8px;
+}

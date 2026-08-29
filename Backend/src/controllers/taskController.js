@@ -107,16 +107,34 @@ async function updateTask(req, res) {
       due_date,
     } = req.body;
 
+    if (
+      title === undefined &&
+      description === undefined &&
+      priority === undefined &&
+      status === undefined &&
+      due_date === undefined
+    ) {
+      return res.status(400).json({
+        error: 'At least one field is required',
+      });
+    }
+
     const validPriorities = ['low', 'medium', 'high'];
     const validStatuses = ['pending', 'completed'];
 
-    if (priority && !validPriorities.includes(priority)) {
+    if (
+      priority !== undefined &&
+      !validPriorities.includes(priority)
+    ) {
       return res.status(400).json({
         error: 'Invalid priority',
       });
     }
 
-    if (status && !validStatuses.includes(status)) {
+    if (
+      status !== undefined &&
+      !validStatuses.includes(status)
+    ) {
       return res.status(400).json({
         error: 'Invalid status',
       });
@@ -126,10 +144,10 @@ async function updateTask(req, res) {
       `UPDATE tasks
        SET
          title = COALESCE($1, title),
-         description = COALESCE($2, description),
+         description = $2,
          priority = COALESCE($3, priority),
          status = COALESCE($4, status),
-         due_date = COALESCE($5, due_date),
+         due_date = $5,
          updated_at = CURRENT_TIMESTAMP
        WHERE id = $6
        AND user_id = $7

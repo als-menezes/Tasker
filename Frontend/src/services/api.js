@@ -54,6 +54,16 @@ export async function createTask(token, taskData) {
   });
 }
 
+export async function updateTask(token, id, taskData) {
+  return request(`/tasks/${id}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(taskData),
+  });
+}
+
 export async function updateTaskStatus(token, id, status) {
   return request(`/tasks/${id}/status`, {
     method: 'PATCH',

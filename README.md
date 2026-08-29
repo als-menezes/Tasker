@@ -39,8 +39,9 @@ O projeto está sendo desenvolvido com React no frontend e Node.js/Express no ba
 - [x] Criação de tarefas pelo frontend
 - [x] Conclusão de tarefas
 - [x] Exclusão de tarefas
-- [ ] Edição de tarefas
-- [ ] Filtros
+- [x] Edição de tarefas
+- [x] Filtros
+- [x] Busca de tarefas
 - [ ] Responsividade avançada
 - [ ] Testes
 - [ ] Docker
