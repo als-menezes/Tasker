@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TaskStats from '../components/TaskStats';
 
 import {
   getTasks,
@@ -206,6 +207,7 @@ function Dashboard() {
           Sair
         </button>
       </header>
+      <TaskStats tasks={tasks} />
 
       {error && <p className="error">{error}</p>}
 
@@ -342,8 +344,12 @@ function Dashboard() {
   </select>
 </div>
         {filteredTasks.length === 0 ? (
-          <p>Você ainda não possui tarefas.</p>
-        ) : (
+  tasks.length === 0 ? (
+    <p>Você ainda não possui tarefas.</p>
+  ) : (
+    <p>Nenhuma tarefa corresponde aos filtros.</p>
+  )
+) : (
           <div className="task-list">
             {filteredTasks.map((task) => (
               <article
