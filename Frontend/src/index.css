@@ -288,3 +288,53 @@ button {
   border-radius: 999px;
   transition: width 0.3s ease;
 }
+
+.navbar {
+  background: white;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.navbar div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar h1 {
+  font-size: 24px;
+}
+
+.navbar span {
+  color: #6b7280;
+}
+
+.navbar button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.loading {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 16px;
+  }
+
+  .navbar div {
+    gap: 8px;
+  }
+
+  .navbar span {
+    display: none;
+  }
+}

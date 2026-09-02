@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TaskStats from '../components/TaskStats';
 
 import {
   getTasks,
@@ -10,38 +8,44 @@ import {
   deleteTask,
 } from '../services/api';
 
+import Navbar from '../components/Navbar';
+import TaskStats from '../components/TaskStats';
+import TaskForm from '../components/TaskForm';
+import TaskFilters from '../components/TaskFilters';
+import TaskCard from '../components/TaskCard';
+
 function Dashboard() {
-  const navigate = useNavigate();
-
   const token = localStorage.getItem('token');
-  const storedUser = localStorage.getItem('user');
 
-  const user = storedUser ? JSON.parse(storedUser) : null;
+  const storedUser =
+    localStorage.getItem('user');
+
+  const user = storedUser
+    ? JSON.parse(storedUser)
+    : null;
 
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [editingTask, setEditingTask] = useState(null);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  
 
-  const [newTask, setNewTask] = useState({
-  title: '',
-  description: '',
-  priority: 'medium',
-  due_date: '',
-  });
+  const [editingTask, setEditingTask] =
+    useState(null);
+
+  const [search, setSearch] = useState('');
+
+  const [statusFilter, setStatusFilter] =
+    useState('all');
+
+  const [priorityFilter, setPriorityFilter] =
+    useState('all');
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState('');
 
   useEffect(() => {
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
     loadTasks();
-  }, [token, navigate]);
+  }, []);
 
   async function loadTasks() {
     try {
@@ -55,72 +59,59 @@ function Dashboard() {
     }
   }
 
-  function handleChange(event) {
-    setNewTask({
-      ...newTask,
-      [event.target.name]: event.target.value,
-    });
-  }
-
-  function handleEditTask(task) {
-  setEditingTask({
-    ...task,
-  });
-  }
-
-  function handleEditChange(event) {
-  setEditingTask({
-    ...editingTask,
-    [event.target.name]: event.target.value,
-  });
-  }
-
-  async function handleCreateTask(event) {
-    event.preventDefault();
-
+  async function handleCreateTask(taskData) {
     try {
-      const task = await createTask(token, newTask);
+      const task = await createTask(
+        token,
+        taskData
+      );
 
-      setTasks([task, ...tasks]);
-
-      setNewTask({
-        title: '',
-        description: '',
-        priority: 'medium',
-        due_date: '',
-      });
+      setTasks((currentTasks) => [
+        task,
+        ...currentTasks,
+      ]);
     } catch (error) {
       setError(error.message);
     }
   }
 
-  async function handleUpdateTask(event) {
-  event.preventDefault();
-
-  try {
-    const updatedTask = await updateTask(
-      token,
-      editingTask.id,
-      {
-        title: editingTask.title,
-        description: editingTask.description,
-        priority: editingTask.priority,
-        due_date: editingTask.due_date || null,
-      }
-    );
-
-    setTasks(
-      tasks.map((task) =>
-        task.id === updatedTask.id
-          ? updatedTask
-          : task
-      )
-    );
-
-    setEditingTask(null);
-  } catch (error) {
-    setError(error.message);
+  function handleEditTask(task) {
+    setEditingTask({
+      ...task,
+    });
   }
+
+  async function handleUpdateTask(event) {
+    event.preventDefault();
+
+    try {
+      const updatedTask =
+        await updateTask(
+          token,
+          editingTask.id,
+          {
+            title: editingTask.title,
+            description:
+              editingTask.description,
+            priority:
+              editingTask.priority,
+            due_date:
+              editingTask.due_date || null,
+          }
+        );
+
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === updatedTask.id
+            ? updatedTask
+            : task
+        )
+      );
+
+      setEditingTask(null);
+    } catch (error) {
+      setError(error.message);
+    }
   }
 
   async function handleCompleteTask(task) {
@@ -130,14 +121,15 @@ function Dashboard() {
           ? 'pending'
           : 'completed';
 
-      const updatedTask = await updateTaskStatus(
-        token,
-        task.id,
-        status
-      );
+      const updatedTask =
+        await updateTaskStatus(
+          token,
+          task.id,
+          status
+        );
 
-      setTasks(
-        tasks.map((currentTask) =>
+      setTasks((currentTasks) =>
+        currentTasks.map((currentTask) =>
           currentTask.id === task.id
             ? updatedTask
             : currentTask
@@ -152,260 +144,221 @@ function Dashboard() {
     try {
       await deleteTask(token, id);
 
-      setTasks(
-        tasks.filter((task) => task.id !== id)
+      setTasks((currentTasks) =>
+        currentTasks.filter(
+          (task) => task.id !== id
+        )
       );
     } catch (error) {
       setError(error.message);
     }
   }
 
-  function handleLogout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    navigate('/login');
+  function handleEditChange(event) {
+    setEditingTask({
+      ...editingTask,
+      [event.target.name]:
+        event.target.value,
+    });
   }
+
+  const filteredTasks = tasks.filter(
+    (task) => {
+      const matchesSearch =
+        task.title
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          ) ||
+        (task.description || '')
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          );
+
+      const matchesStatus =
+        statusFilter === 'all' ||
+        task.status === statusFilter;
+
+      const matchesPriority =
+        priorityFilter === 'all' ||
+        task.priority ===
+          priorityFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPriority
+      );
+    }
+  );
 
   if (loading) {
-    return <p>Carregando tarefas...</p>;
+    return (
+      <main className="loading">
+        <p>Carregando tarefas...</p>
+      </main>
+    );
   }
 
-  const filteredTasks = tasks.filter((task) => {
-  const matchesSearch =
-    task.title
-      .toLowerCase()
-      .includes(search.toLowerCase()) ||
-    (task.description || '')
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-  const matchesStatus =
-    statusFilter === 'all' ||
-    task.status === statusFilter;
-
-  const matchesPriority =
-    priorityFilter === 'all' ||
-    task.priority === priorityFilter;
-
   return (
-    matchesSearch &&
-    matchesStatus &&
-    matchesPriority
-  );
-  });
+    <>
+      <Navbar user={user} />
 
-  return (
-    <main className="dashboard">
-      <header className="dashboard-header">
-        <div>
-          <h1>Tasker</h1>
-          <p>Olá, {user?.name}!</p>
-        </div>
-
-        <button onClick={handleLogout}>
-          Sair
-        </button>
-      </header>
-      <TaskStats tasks={tasks} />
-
-      {error && <p className="error">{error}</p>}
-
-      {editingTask && (
-  <section className="task-form">
-    <h2>Editar tarefa</h2>
-
-    <form onSubmit={handleUpdateTask}>
-      <input
-        type="text"
-        name="title"
-        placeholder="Título"
-        value={editingTask.title}
-        onChange={handleEditChange}
-        required
-      />
-
-      <textarea
-        name="description"
-        placeholder="Descrição"
-        value={editingTask.description || ''}
-        onChange={handleEditChange}
-      />
-
-      <select
-        name="priority"
-        value={editingTask.priority}
-        onChange={handleEditChange}
-      >
-        <option value="low">Baixa</option>
-        <option value="medium">Média</option>
-        <option value="high">Alta</option>
-      </select>
-
-      <input
-        type="date"
-        name="due_date"
-        value={editingTask.due_date || ''}
-        onChange={handleEditChange}
-      />
-
-      <div className="task-actions">
-        <button type="submit">
-          Salvar alterações
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setEditingTask(null)}
-        >
-          Cancelar
-        </button>
-      </div>
-    </form>
-  </section>
-)}
-
-      <section className="task-form">
-        <h2>Nova tarefa</h2>
-
-        <form onSubmit={handleCreateTask}>
-          <input
-            type="text"
-            name="title"
-            placeholder="Título"
-            value={newTask.title}
-            onChange={handleChange}
-            required
-          />
-
-          <textarea
-            name="description"
-            placeholder="Descrição"
-            value={newTask.description}
-            onChange={handleChange}
-          />
-
-          <select
-            name="priority"
-            value={newTask.priority}
-            onChange={handleChange}
-          >
-            <option value="low">Baixa</option>
-            <option value="medium">Média</option>
-            <option value="high">Alta</option>
-          </select>
-
-          <input
-            type="date"
-            name="due_date"
-            value={newTask.due_date}
-            onChange={handleChange}
-          />
-
-          <button type="submit">
-            Criar tarefa
-          </button>
-        </form>
-      </section>
-
-      <section>
-        <h2>Minhas tarefas</h2>
-        <div className="filters">
-  <input
-    type="text"
-    placeholder="Buscar tarefa..."
-    value={search}
-    onChange={(event) =>
-      setSearch(event.target.value)
-    }
-  />
-
-  <select
-    value={statusFilter}
-    onChange={(event) =>
-      setStatusFilter(event.target.value)
-    }
-  >
-    <option value="all">Todos os status</option>
-    <option value="pending">Pendentes</option>
-    <option value="completed">Concluídas</option>
-  </select>
-
-  <select
-    value={priorityFilter}
-    onChange={(event) =>
-      setPriorityFilter(event.target.value)
-    }
-  >
-    <option value="all">Todas as prioridades</option>
-    <option value="low">Baixa</option>
-    <option value="medium">Média</option>
-    <option value="high">Alta</option>
-  </select>
-</div>
-        {filteredTasks.length === 0 ? (
-  tasks.length === 0 ? (
-    <p>Você ainda não possui tarefas.</p>
-  ) : (
-    <p>Nenhuma tarefa corresponde aos filtros.</p>
-  )
-) : (
-          <div className="task-list">
-            {filteredTasks.map((task) => (
-              <article
-                key={task.id}
-                className={`task-card ${
-                  task.status === 'completed'
-                    ? 'completed'
-                    : ''
-                }`}
-              >
-                <div>
-                  <h3>{task.title}</h3>
-
-                  <p>{task.description}</p>
-
-                  <small>
-                    Prioridade: {task.priority}
-                  </small>
-
-                  {task.due_date && (
-                    <small>
-                      Prazo: {task.due_date}
-                    </small>
-                  )}
-                </div>
-
-                <div className="task-actions">
-                  <button
-  onClick={() => handleEditTask(task)}
->
-  Editar
-</button> 
-                  <button
-                    onClick={() =>
-                      handleCompleteTask(task)
-                    }
-                  >
-                    {task.status === 'completed'
-                      ? 'Reabrir'
-                      : 'Concluir'}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      handleDeleteTask(task.id)
-                    }
-                  >
-                    Excluir
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+      <main className="dashboard">
+        {error && (
+          <p className="error">
+            {error}
+          </p>
         )}
-      </section>
-    </main>
+
+        <TaskStats tasks={tasks} />
+
+        {editingTask && (
+          <section className="task-form">
+            <h2>Editar tarefa</h2>
+
+            <form
+              onSubmit={handleUpdateTask}
+            >
+              <input
+                type="text"
+                name="title"
+                placeholder="Título"
+                value={
+                  editingTask.title
+                }
+                onChange={
+                  handleEditChange
+                }
+                required
+              />
+
+              <textarea
+                name="description"
+                placeholder="Descrição"
+                value={
+                  editingTask.description ||
+                  ''
+                }
+                onChange={
+                  handleEditChange
+                }
+              />
+
+              <select
+                name="priority"
+                value={
+                  editingTask.priority
+                }
+                onChange={
+                  handleEditChange
+                }
+              >
+                <option value="low">
+                  Baixa
+                </option>
+
+                <option value="medium">
+                  Média
+                </option>
+
+                <option value="high">
+                  Alta
+                </option>
+              </select>
+
+              <input
+                type="date"
+                name="due_date"
+                value={
+                  editingTask.due_date ||
+                  ''
+                }
+                onChange={
+                  handleEditChange
+                }
+              />
+
+              <div className="task-actions">
+                <button type="submit">
+                  Salvar alterações
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditingTask(null)
+                  }
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
+        <TaskForm
+          onCreate={handleCreateTask}
+        />
+
+        <section>
+          <h2>Minhas tarefas</h2>
+
+          <TaskFilters
+            search={search}
+            setSearch={setSearch}
+            statusFilter={
+              statusFilter
+            }
+            setStatusFilter={
+              setStatusFilter
+            }
+            priorityFilter={
+              priorityFilter
+            }
+            setPriorityFilter={
+              setPriorityFilter
+            }
+          />
+
+          {filteredTasks.length ===
+          0 ? (
+            tasks.length === 0 ? (
+              <p>
+                Você ainda não possui
+                tarefas.
+              </p>
+            ) : (
+              <p>
+                Nenhuma tarefa corresponde
+                aos filtros.
+              </p>
+            )
+          ) : (
+            <div className="task-list">
+              {filteredTasks.map(
+                (task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onEdit={
+                      handleEditTask
+                    }
+                    onComplete={
+                      handleCompleteTask
+                    }
+                    onDelete={
+                      handleDeleteTask
+                    }
+                  />
+                )
+              )}
+            </div>
+          )}
+        </section>
+      </main>
+    </>
   );
 }
 
