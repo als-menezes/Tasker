@@ -11,6 +11,20 @@ describe('User registration', () => {
         password: '123456',
     };
 
+    beforeEach(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
+        );
+    });
+
+    afterAll(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
+        );
+    });
+
     it('should create a new user', async () => {
         const response = await request(app)
             .post('/api/users')
@@ -28,6 +42,14 @@ describe('User registration', () => {
     });
 
     it('should not allow duplicate email', async () => {
+        // Primeiro cadastro
+        const firstResponse = await request(app)
+            .post('/api/users')
+            .send(testUser);
+
+        expect(firstResponse.statusCode).toBe(201);
+
+        // Segundo cadastro com o mesmo email
         const response = await request(app)
             .post('/api/users')
             .send(testUser);
@@ -71,6 +93,7 @@ describe('User registration', () => {
     });
 });
 
+
 describe('User login', () => {
     const testUser = {
         name: 'Login Test',
@@ -79,6 +102,11 @@ describe('User login', () => {
     };
 
     beforeAll(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
+        );
+
         const passwordHash = await bcrypt.hash(
             testUser.password,
             10
@@ -86,13 +114,20 @@ describe('User login', () => {
 
         await db.query(
             `INSERT INTO users
-       (name, email, password_hash)
-       VALUES ($1, $2, $3)`,
+             (name, email, password_hash)
+             VALUES ($1, $2, $3)`,
             [
                 testUser.name,
                 testUser.email,
                 passwordHash,
             ]
+        );
+    });
+
+    afterAll(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
         );
     });
 
@@ -163,7 +198,44 @@ describe('User login', () => {
     });
 });
 
+
 describe('Protected profile route', () => {
+    const testUser = {
+        name: 'Profile Test',
+        email: 'profile@example.com',
+        password: '123456',
+    };
+
+    beforeAll(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
+        );
+
+        const passwordHash = await bcrypt.hash(
+            testUser.password,
+            10
+        );
+
+        await db.query(
+            `INSERT INTO users
+             (name, email, password_hash)
+             VALUES ($1, $2, $3)`,
+            [
+                testUser.name,
+                testUser.email,
+                passwordHash,
+            ]
+        );
+    });
+
+    afterAll(async () => {
+        await db.query(
+            'DELETE FROM users WHERE email = $1',
+            [testUser.email]
+        );
+    });
+
     it('should reject request without token', async () => {
         const response = await request(app)
             .get('/api/profile');
@@ -174,16 +246,20 @@ describe('Protected profile route', () => {
     it('should reject request with invalid token', async () => {
         const response = await request(app)
             .get('/api/profile')
-            .set('Authorization', 'Bearer invalid-token');
+            .set(
+                'Authorization',
+                'Bearer invalid-token'
+            );
 
         expect(response.statusCode).toBe(401);
     });
+
     it('should allow access with a valid token', async () => {
         const loginResponse = await request(app)
             .post('/api/auth/login')
             .send({
-                email: 'login@example.com',
-                password: '123456',
+                email: testUser.email,
+                password: testUser.password,
             });
 
         expect(loginResponse.statusCode).toBe(200);
@@ -200,11 +276,11 @@ describe('Protected profile route', () => {
         expect(response.statusCode).toBe(200);
 
         expect(response.body.email).toBe(
-            'login@example.com'
+            testUser.email
         );
 
         expect(response.body.name).toBe(
-            'Login Test'
+            testUser.name
         );
     });
 });
